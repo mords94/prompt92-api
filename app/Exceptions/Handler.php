@@ -2,8 +2,11 @@
 
 namespace App\Exceptions;
 
+use App\Helpers\ResponseMessage;
 use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Psr\Container\NotFoundExceptionInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class Handler extends ExceptionHandler
 {
@@ -36,7 +39,9 @@ class Handler extends ExceptionHandler
      */
     public function report(Exception $exception)
     {
-        parent::report($exception);
+        if(env('APP_ENV') === 'production') {
+            parent::report($exception);
+        }
     }
 
     /**
@@ -48,6 +53,11 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
-        return parent::render($request, $exception);
+
+        if($exception instanceof NotFoundHttpException) {
+            return ResponseMessage::notFound();
+        }
+
+        return ResponseMessage::error($exception);
     }
 }
