@@ -1,10 +1,16 @@
 <?php
 
+use App\Models\Email;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 
 class DatabaseSeeder extends Seeder
 {
+
+    private const DUMMY_USERS_NUMBER = 10;
+
+
     /**
      * Run the database seeds.
      *
@@ -12,6 +18,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-       $this->call(UsersTableSeeder::class);
+        if (User::query()->count() === 0) {
+            for ($i = 0; $i < self::DUMMY_USERS_NUMBER; $i++) {
+                $user = factory(User::class)->create();
+
+                for ($j = 0; $j < rand(1, 3); $j++) {
+                    factory(Email::class)->create([
+                        'user_id' => $user->id,
+                    ]);
+                }
+            }
+        }
     }
 }

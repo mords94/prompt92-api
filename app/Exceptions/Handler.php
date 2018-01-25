@@ -4,9 +4,10 @@ namespace App\Exceptions;
 
 use App\Helpers\ResponseMessage;
 use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Psr\Container\NotFoundExceptionInterface;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 
 class Handler extends ExceptionHandler
 {
@@ -53,11 +54,18 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
-
-        if($exception instanceof NotFoundHttpException) {
+        if($exception instanceof ModelNotFoundException) {
             return ResponseMessage::notFound();
         }
 
-        return ResponseMessage::error($exception);
+        if($exception instanceof ValidationException) {
+            return ResponseMessage::validationError($exception->errors());
+        }
+
+        if($exception instanceof MethodNotAllowedHttpException) {
+            return ResponseMessage::badRequest();
+        }
+
+        return ResponseMessage::error([$exception->getMessage(), get_class($exception)]);
     }
 }

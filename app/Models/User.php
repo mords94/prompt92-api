@@ -16,7 +16,12 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name'
+        'name',
+        'date_of_birth',
+    ];
+
+    protected $dates = [
+        "date_of_birth"
     ];
 
     public function emails() {

@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\ResponseMessage;
+use App\Http\Requests\UserStoreRequest;
 use App\Http\Resources\UserResource;
 use App\Http\Resources\UsersResource;
+use App\Models\Email;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -18,9 +20,9 @@ class UserController extends Controller
      *
      * @return Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::all();
+        $users = User::with('emails')->paginate($request->get('max', 10));
 
         return ResponseMessage::ok(new UsersResource($users));
     }
@@ -30,17 +32,32 @@ class UserController extends Controller
      *
      * POST /api/users
      *
-     * @param  Request  $request
+     * @param  UserStoreRequest $request
      * @return Response
      */
-    public function store(Request $request)
+    public function store(UserStoreRequest $request)
     {
-        $user = new User($request->all());
+        $user = new User($request->except(['emails']));
+        $emails = $request->get('emails');
 
-        if($user->save()) {
-            return ResponseMessage::Created(new UserResource($user));
+
+        if ($user->save()) {
+            $saved = collect($emails)->reduce(function ($saved, String $emailAddress) use ($user) {
+                $email = new Email([
+                    'address' => $emailAddress,
+                    'user_id' => $user->id,
+                ]);
+
+                return $email->save() && $saved;
+            }, true);
+
+            if(!$saved) {
+                return ResponseMessage::error(__("An error occured. One of the email addresses has not been saved successfully."));
+            }
+
+            return ResponseMessage::created(new UserResource($user));
         } else {
-            return ResponseMessage::Error(__("An error occured. User could not be created."));
+            return ResponseMessage::error(__("An error occured. User could not be created."));
         }
     }
 

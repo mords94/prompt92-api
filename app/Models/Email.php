@@ -9,11 +9,11 @@ class Email extends Model
 {
     use ModelInspectTrait;
 
-    protected $attributes = [
-        'id',
+    protected $fillable = [
         'address',
-        'user_id',
+        'user_id'
     ];
+
 
     protected function user() {
         return $this->belongsTo(User::class);

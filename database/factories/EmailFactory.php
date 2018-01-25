@@ -1,10 +1,10 @@
 <?php
 
-use App\Models\Email;
 use Faker\Generator as Faker;
 
-$factory->define(Email::class, function (Faker $faker) {
+$factory->define(App\Models\Email::class, function (Faker $faker) {
     return [
         'address' => $faker->email,
+        'user_id' => null,
     ];
 });
