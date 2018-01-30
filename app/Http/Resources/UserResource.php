@@ -21,6 +21,7 @@ class UserResource extends Resource
             'id'            => (string)$this->id,
             'attributes'    => [
                 'name' => $this->name,
+                'date_of_birth' => $this->date_of_birth,
             ],
             'relationships' => new UsersRelationShipResource($this),
             'links'         => [

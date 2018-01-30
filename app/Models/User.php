@@ -20,10 +20,6 @@ class User extends Authenticatable
         'date_of_birth',
     ];
 
-    protected $dates = [
-        "date_of_birth"
-    ];
-
     public function emails() {
         return $this->hasMany(Email::class);
     }
