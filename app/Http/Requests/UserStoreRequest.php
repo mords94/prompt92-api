@@ -26,7 +26,7 @@ class UserStoreRequest extends FormRequest
         return [
             'name' => 'required|string|max:255|unique:users',
             'date_of_birth' => 'required|date|before:today',
-            'emails.*' => 'email'
+            'emails.*' => 'email|unique:emails,address'
         ];
     }
 }
